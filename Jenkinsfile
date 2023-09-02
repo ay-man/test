@@ -1,12 +1,21 @@
 pipeline {
-    agent any 
+    agent any
     environment {
+        // For Docker Hub
         DOCKER_HUB_CREDENTIALS = 'bf46b830-94c4-474d-b476-c240a2aeb21c'
     }
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        userRemoteConfigs: [[url: 'https://$GITHUB_USERNAME:$GITHUB_PASSWORD@github.com/test.git']]
+                    ])
+                }
             }
         }
         stage('Build and Test') {
@@ -27,12 +36,13 @@ pipeline {
         }
         stage('Deploy to Server') {
             steps {
-                sshagent(credentials: ['id_rsa']) {
+                sshagent(credentials: ['65365f6e-5b9a-4941-9794-01f35588600e']) {
                     sh '''
-                        ssh -i /home/root/id_rsa jenkins@10.0.2.9 "docker pull aym4n/my_fastapi_app:latest && docker stop my_fastapi_app || true && docker rm my_fastapi_app || true && docker run --name my_fastapi_app -d -p 8000:80 aym4n/my_fastapi_app:latest"
+                        ssh jenkins@10.0.2.9 "docker pull aym4n/my_fastapi_app:latest && docker stop my_fastapi_app || true && docker rm my_fastapi_app || true && docker run --name my_fastapi_app -d -p 8000:80 aym4n/my_fastapi_app:latest"
                     '''
                 }
             }
         }
     }
 }
+
