@@ -29,7 +29,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['id_rsa']) {
                     sh '''
-                        ssh jenkins@10.0.2.9 "docker pull aym4n/my_fastapi_app:latest && docker stop my_fastapi_app || true && docker rm my_fastapi_app || true && docker run --name my_fastapi_app -d -p 8000:80 aym4n/my_fastapi_app:latest"
+                        ssh -i /home/root/id_rsa jenkins@10.0.2.9 "docker pull aym4n/my_fastapi_app:latest && docker stop my_fastapi_app || true && docker rm my_fastapi_app || true && docker run --name my_fastapi_app -d -p 8000:80 aym4n/my_fastapi_app:latest"
                     '''
                 }
             }
