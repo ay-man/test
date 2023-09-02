@@ -1,21 +1,12 @@
 pipeline {
     agent any
     environment {
-        // For Docker Hub
         DOCKER_HUB_CREDENTIALS = 'bf46b830-94c4-474d-b476-c240a2aeb21c'
     }
     stages {
         stage('Checkout') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'github_credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: '*/main']],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [],
-                        userRemoteConfigs: [[url: 'https://$GITHUB_USERNAME:$GITHUB_PASSWORD@github.com/test.git']]
-                    ])
-                }
+                checkout scm
             }
         }
         stage('Build and Test') {
@@ -45,4 +36,3 @@ pipeline {
         }
     }
 }
-
