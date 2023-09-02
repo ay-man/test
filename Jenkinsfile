@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HUB_CREDENTIALS = 'bf46b830-94c4-474d-b476-c240a2aeb21c'
+        DOCKER_HUB_CREDENTIALS_ID = 'bf46b830-94c4-474d-b476-c240a2aeb21c'
     }
     stages {
         stage('Checkout') {
@@ -16,11 +16,11 @@ pipeline {
         }
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([string(credentialsId: env.DOCKER_HUB_CREDENTIALS, variable: 'DOCKER_HUB_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: env.DOCKER_HUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh '''
-                        echo "$DOCKER_HUB_PASS" | docker login --username aym4n --password-stdin
-                        docker tag my_fastapi_app:latest aym4n/my_fastapi_app:latest
-                        docker push aym4n/my_fastapi_app:latest
+                        echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+                        docker tag my_fastapi_app:latest $DOCKER_USERNAME/my_fastapi_app:latest
+                        docker push $DOCKER_USERNAME/my_fastapi_app:latest
                     '''
                 }
             }
@@ -36,3 +36,4 @@ pipeline {
         }
     }
 }
+
